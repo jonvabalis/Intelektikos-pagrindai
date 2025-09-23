@@ -140,20 +140,20 @@ df2019 = df2019[(df2019['moneyLine'] >= lower_bounda) & (df2019['moneyLine'] <= 
 #
 #     plt.show()
 
-# for attribute in categorical_attributes:
-#     rowCount = len(df2019[attribute]) - df2019[attribute].isnull().sum()
-#     plt.hist(df2019[attribute], bins=int(1 + 3.22 * np.log(rowCount)), edgecolor="black", color="lightgreen")
-#     plt.title(attribute + " histograma")
-#     plt.xlabel("Reikšmės")
-#     plt.xticks(rotation=90)
-#     plt.ylabel("Dažnumas")
+for attribute in categorical_attributes:
+    rowCount = df2019[attribute].value_counts()
+    plt.bar(rowCount.index.astype(str), rowCount.values, edgecolor="black", color="lightgreen")
+    plt.title(attribute + " diagrama")
+    plt.xlabel("Reikšmės")
+    plt.xticks(rotation=90)
+    plt.ylabel("Dažnumas")
+
+    plt.show()
+
+# sns.pairplot(df2019, diag_kind="hist", vars=continuous_attributes)
 #
-#     plt.show()
-
-sns.pairplot(df2019, diag_kind="hist", vars=continuous_attributes)
-
-print_relevant_data(df2019)
-plt.show()
+# print_relevant_data(df2019)
+# plt.show()
 
 
 # df2019.boxplot(column='opponentMoneyLine')
