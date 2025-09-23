@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 csvData = 'oddsData.csv'
 
@@ -102,12 +104,57 @@ print("")
 
 # Categorical attributes
 print("Categorical attributes")
-continuous_attributes = ["team", "home/visitor", "opponent"]
-for attribute in continuous_attributes:
+categorical_attributes = ["team", "home/visitor", "opponent"]
+for attribute in categorical_attributes:
     print_categorical_attribute_data(df2019, attribute)
 
 # As I have many rows of data, I will drop the rows with missing data
-# Row count went 1230 -> 1227
-df2019 = df2019.dropna()
+# Row count went 1230 -> 1220
+# df2019 = df2019.dropna()
+
+
+# BOX PLOT BOUNDS
+# -------------------------------------------
+Q1 = df2019['opponentMoneyLine'].quantile(0.25)
+Q3 = df2019['opponentMoneyLine'].quantile(0.75)
+IQR = Q3 - Q1
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
+
+Q1a = df2019['moneyLine'].quantile(0.25)
+Q3a = df2019['moneyLine'].quantile(0.75)
+IQRa = Q3a - Q1a
+lower_bounda = Q1a - 1.5 * IQRa
+upper_bounda = Q3a + 1.5 * IQRa
+
+df2019 = df2019[(df2019['opponentMoneyLine'] >= lower_bound) & (df2019['opponentMoneyLine'] <= upper_bound)]
+df2019 = df2019[(df2019['moneyLine'] >= lower_bounda) & (df2019['moneyLine'] <= upper_bounda)]
+# -------------------------------------------
+
+# for attribute in continuous_attributes:
+#     rowCount = len(df2019[attribute]) - df2019[attribute].isnull().sum()
+#     plt.hist(df2019[attribute], bins=int(1 + 3.22 * np.log(rowCount)), edgecolor="black", color="lightgreen")
+#     plt.title(attribute + " histograma")
+#     plt.xlabel("Reikšmės")
+#     plt.ylabel("Dažnumas")
+#
+#     plt.show()
+
+# for attribute in categorical_attributes:
+#     rowCount = len(df2019[attribute]) - df2019[attribute].isnull().sum()
+#     plt.hist(df2019[attribute], bins=int(1 + 3.22 * np.log(rowCount)), edgecolor="black", color="lightgreen")
+#     plt.title(attribute + " histograma")
+#     plt.xlabel("Reikšmės")
+#     plt.xticks(rotation=90)
+#     plt.ylabel("Dažnumas")
+#
+#     plt.show()
+
+sns.pairplot(df2019, diag_kind="hist", vars=continuous_attributes)
 
 print_relevant_data(df2019)
+plt.show()
+
+
+# df2019.boxplot(column='opponentMoneyLine')
+# plt.show()
