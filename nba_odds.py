@@ -111,8 +111,6 @@ for i, row in df2019.iterrows():
             df2019.at[i, 'homeResult'] = "won"
             df2019.at[i, 'roadResult'] = "lost"
 
-df2019["favoriteLine"] = df2019[["moneyLine", "opponentMoneyLine"]].min(axis=1)
-
 # As my data has no missing entries, let's make a few fields missing
 df2019.loc[10, "score"] = np.nan
 df2019.loc[100, "opponentScore"] = np.nan
@@ -126,7 +124,7 @@ df2019.loc[1204, "team"] = np.nan
 df2019.loc[1205, "team"] = np.nan
 
 print("Continuous attributes")
-continuous_attributes = ["score", "opponentScore", "moneyLine", "opponentMoneyLine", "spread", "won", "favoriteLine"]
+continuous_attributes = ["score", "opponentScore", "moneyLine", "opponentMoneyLine", "spread", "won"]
 for attribute in continuous_attributes:
     print_continuous_attribute_data(df2019, attribute)
 
