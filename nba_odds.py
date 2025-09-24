@@ -80,10 +80,10 @@ for i in range(len(df2019)):
 
 df2019 = df2019.drop(rows_to_drop).reset_index(drop=True)
 
-# I've decided to use 8 columns only
+# I've decided to use 8 original columns only
 df2019 = df2019.drop(columns=['date', 'season', 'total', 'secondHalfTotal'])
 
-# Added 4 more columns - 12 in total
+# Added 5 more columns - 13 in total
 df2019["won"] = df2019[['score', 'opponentScore']].max(axis=1)
 df2019["pointCategory"] = df2019["won"].apply(
     lambda x: "less" if x < 100 else ("more" if x > 130 else "average")
@@ -111,6 +111,7 @@ for i, row in df2019.iterrows():
             df2019.at[i, 'homeResult'] = "won"
             df2019.at[i, 'roadResult'] = "lost"
 
+df2019["favoriteLine"] = df2019[["moneyLine", "opponentMoneyLine"]].min(axis=1)
 
 # As my data has no missing entries, let's make a few fields missing
 df2019.loc[10, "score"] = np.nan
@@ -125,7 +126,7 @@ df2019.loc[1204, "team"] = np.nan
 df2019.loc[1205, "team"] = np.nan
 
 print("Continuous attributes")
-continuous_attributes = ["score", "opponentScore", "moneyLine", "opponentMoneyLine", "spread", "won"]
+continuous_attributes = ["score", "opponentScore", "moneyLine", "opponentMoneyLine", "spread", "won", "favoriteLine"]
 for attribute in continuous_attributes:
     print_continuous_attribute_data(df2019, attribute)
 
