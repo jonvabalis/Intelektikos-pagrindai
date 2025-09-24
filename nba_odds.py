@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from matplotlib.ticker import MultipleLocator
 
 csvData = 'oddsData.csv'
 
@@ -123,7 +124,6 @@ df2019.loc[1203, "team"] = np.nan
 df2019.loc[1204, "team"] = np.nan
 df2019.loc[1205, "team"] = np.nan
 
-# Continuous attributes
 print("Continuous attributes")
 continuous_attributes = ["score", "opponentScore", "moneyLine", "opponentMoneyLine", "spread", "won"]
 for attribute in continuous_attributes:
@@ -131,7 +131,6 @@ for attribute in continuous_attributes:
 
 print("")
 
-# Categorical attributes
 print("Categorical attributes")
 categorical_attributes = ["team", "home/visitor", "opponent", "pointCategory", "homeResult", "roadResult"]
 for attribute in categorical_attributes:
@@ -179,11 +178,26 @@ df2019 = df2019[(df2019['moneyLine'] >= lower_bounda) & (df2019['moneyLine'] <= 
 #
 #     plt.show()
 
-sns.pairplot(df2019, diag_kind="hist", vars=continuous_attributes)
-
-print_relevant_data(df2019)
-plt.show()
+# sns.pairplot(df2019, diag_kind="hist", vars=continuous_attributes)
+#
+# print_relevant_data(df2019)
+# plt.show()
 
 
 # df2019.boxplot(column='opponentMoneyLine')
 # plt.show()
+
+
+homeWon = df2019[df2019["homeResult"] == "won"]
+roadWon = df2019[df2019["roadResult"] == "won"]
+
+(homeWon["pointCategory"].value_counts(normalize=True) * 100).plot(
+    kind="bar", color="lightgreen", edgecolor="black"
+)
+
+plt.title("Laimėta: namuose")
+plt.xlabel("Laimėjimo kategorija")
+plt.ylabel("Dažnumas, %")
+plt.xticks(rotation=0)
+plt.gca().yaxis.set_major_locator(MultipleLocator(10))
+plt.show()
