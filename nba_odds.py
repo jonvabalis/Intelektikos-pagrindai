@@ -177,16 +177,22 @@ df2019 = df2019[(df2019['moneyLine'] >= lower_bounda) & (df2019['moneyLine'] <= 
 #
 #     plt.show()
 
+# DISPLAY SPLOM
+# ----------------------------------------------
 # sns.pairplot(df2019, diag_kind="hist", vars=continuous_attributes)
 #
 # print_relevant_data(df2019)
 # plt.show()
+# ----------------------------------------------
 
-
+# DISPLAY BOX PLOT FOR COLUMN
+# ----------------------------------------------
 # df2019.boxplot(column='opponentMoneyLine')
 # plt.show()
+# ----------------------------------------------
 
-
+# COMPARE CATEGORICAL VALUES IN BAR PLOT
+# ----------------------------------------------
 homeWon = df2019[df2019["homeResult"] == "won"]
 roadWon = df2019[df2019["roadResult"] == "won"]
 
@@ -194,9 +200,58 @@ roadWon = df2019[df2019["roadResult"] == "won"]
     kind="bar", color="lightgreen", edgecolor="black"
 )
 
-plt.title("Laimėta: namuose")
-plt.xlabel("Laimėjimo kategorija")
-plt.ylabel("Dažnumas, %")
-plt.xticks(rotation=0)
-plt.gca().yaxis.set_major_locator(MultipleLocator(10))
-plt.show()
+# plt.title("Laimėta: namuose")
+# plt.xlabel("Laimėjimo kategorija")
+# plt.ylabel("Dažnumas, %")
+# plt.xticks(rotation=0)
+# plt.gca().yaxis.set_major_locator(MultipleLocator(10))
+# plt.show()
+# ----------------------------------------------
+
+# BOX PLOT
+# ----------------------------------------------
+# fig, axes = plt.subplots(1, 2, figsize=(10, 6))
+#
+# sns.boxplot(y=df2019["won"], ax=axes[0], width=0.3)
+# axes[0].set_title("Laimėta taškais pasiskirstymas")
+# axes[0].set_xlabel("")
+# axes[0].set_ylabel("Taškai")
+#
+# sns.boxplot(x=df2019["pointCategory"], y=df2019["won"], ax=axes[1])
+# axes[1].set_title("Laimėta taškais kategorijoje")
+# axes[1].set_xlabel("Kategorija")
+# axes[1].set_ylabel("")
+#
+# plt.tight_layout()
+# plt.show()
+# ----------------------------------------------
+
+# COVARIANCE
+# ----------------------------------------------
+# continuous_df = df2019[continuous_attributes]
+# cov_matrix = continuous_df.cov()
+# pd.set_option("display.max_columns", None)
+# pd.set_option("display.width", None)
+# print("Covariance Matrix:\n", cov_matrix)
+#
+# CORRELATION MATRIX
+# ----------------------------------------------
+# corr_matrix = continuous_df.corr(method="pearson")
+# plt.figure(figsize=(8,6))
+# sns.heatmap(corr_matrix, annot=True, fmt=".2f", cmap="coolwarm")
+# plt.title("Koreliacijos matrica")
+# plt.show()
+# ----------------------------------------------
+
+for column in df2019.columns:
+    if column in continuous_attributes:
+        df2019[column] = (df2019[column]-df2019[column].min())/(df2019[column].max()-df2019[column].min())
+
+pd.set_option("display.max_columns", None)
+pd.set_option("display.width", None)
+print(df2019[continuous_attributes].describe())
+
+df2019_encoded = pd.get_dummies(df2019, columns=categorical_attributes)
+pd.set_option("display.max_columns", None)
+pd.set_option("display.width", None)
+print(df2019_encoded)
