@@ -82,6 +82,12 @@ df2019 = df2019.drop(rows_to_drop).reset_index(drop=True)
 # I've decided to use 8 columns only
 df2019 = df2019.drop(columns=['date', 'season', 'total', 'secondHalfTotal'])
 
+# Added 2 more columns - 10 in total
+df2019["won"] = df2019[['score', 'opponentScore']].max(axis=1)
+df2019["pointCategory"] = df2019["won"].apply(
+    lambda x: "less" if x < 100 else ("more" if x > 130 else "average")
+)
+
 # As my data has no missing entries, let's make a few fields missing
 df2019.loc[10, "score"] = np.nan
 df2019.loc[100, "opponentScore"] = np.nan
@@ -96,7 +102,7 @@ df2019.loc[1205, "team"] = np.nan
 
 # Continuous attributes
 print("Continuous attributes")
-continuous_attributes = ["score", "opponentScore", "moneyLine", "opponentMoneyLine", "spread"]
+continuous_attributes = ["score", "opponentScore", "moneyLine", "opponentMoneyLine", "spread", "won"]
 for attribute in continuous_attributes:
     print_continuous_attribute_data(df2019, attribute)
 
@@ -104,7 +110,7 @@ print("")
 
 # Categorical attributes
 print("Categorical attributes")
-categorical_attributes = ["team", "home/visitor", "opponent"]
+categorical_attributes = ["team", "home/visitor", "opponent", "pointCategory"]
 for attribute in categorical_attributes:
     print_categorical_attribute_data(df2019, attribute)
 
@@ -131,24 +137,24 @@ df2019 = df2019[(df2019['opponentMoneyLine'] >= lower_bound) & (df2019['opponent
 df2019 = df2019[(df2019['moneyLine'] >= lower_bounda) & (df2019['moneyLine'] <= upper_bounda)]
 # -------------------------------------------
 
-# for attribute in continuous_attributes:
-#     rowCount = len(df2019[attribute]) - df2019[attribute].isnull().sum()
-#     plt.hist(df2019[attribute], bins=int(1 + 3.22 * np.log(rowCount)), edgecolor="black", color="lightgreen")
-#     plt.title(attribute + " histograma")
-#     plt.xlabel("Reikšmės")
-#     plt.ylabel("Dažnumas")
-#
-#     plt.show()
-
-for attribute in categorical_attributes:
-    rowCount = df2019[attribute].value_counts()
-    plt.bar(rowCount.index.astype(str), rowCount.values, edgecolor="black", color="lightgreen")
-    plt.title(attribute + " diagrama")
+for attribute in continuous_attributes:
+    rowCount = len(df2019[attribute]) - df2019[attribute].isnull().sum()
+    plt.hist(df2019[attribute], bins=int(1 + 3.22 * np.log(rowCount)), edgecolor="black", color="lightgreen")
+    plt.title(attribute + " histograma")
     plt.xlabel("Reikšmės")
-    plt.xticks(rotation=90)
     plt.ylabel("Dažnumas")
 
     plt.show()
+
+# for attribute in categorical_attributes:
+#     rowCount = df2019[attribute].value_counts()
+#     plt.bar(rowCount.index.astype(str), rowCount.values, edgecolor="black", color="lightgreen")
+#     plt.title(attribute + " diagrama")
+#     plt.xlabel("Reikšmės")
+#     plt.xticks(rotation=90)
+#     plt.ylabel("Dažnumas")
+#
+#     plt.show()
 
 # sns.pairplot(df2019, diag_kind="hist", vars=continuous_attributes)
 #
