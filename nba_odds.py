@@ -82,11 +82,34 @@ df2019 = df2019.drop(rows_to_drop).reset_index(drop=True)
 # I've decided to use 8 columns only
 df2019 = df2019.drop(columns=['date', 'season', 'total', 'secondHalfTotal'])
 
-# Added 2 more columns - 10 in total
+# Added 4 more columns - 12 in total
 df2019["won"] = df2019[['score', 'opponentScore']].max(axis=1)
 df2019["pointCategory"] = df2019["won"].apply(
     lambda x: "less" if x < 100 else ("more" if x > 130 else "average")
 )
+df2019["homeResult"] = ""
+df2019["roadResult"] = ""
+
+for i, row in df2019.iterrows():
+    score = row['score']
+    opp = row['opponentScore']
+
+    if row["home/visitor"] == "@":
+        if row['opponentScore'] > row['score']:
+            df2019.at[i, 'homeResult'] = "won"
+            df2019.at[i, 'roadResult'] = "lost"
+        else:
+            df2019.at[i, 'homeResult'] = "lost"
+            df2019.at[i, 'roadResult'] = "won"
+
+    elif row["home/visitor"] == "vs":
+        if row['opponentScore'] > row['score']:
+            df2019.at[i, 'homeResult'] = "lost"
+            df2019.at[i, 'roadResult'] = "won"
+        else:
+            df2019.at[i, 'homeResult'] = "won"
+            df2019.at[i, 'roadResult'] = "lost"
+
 
 # As my data has no missing entries, let's make a few fields missing
 df2019.loc[10, "score"] = np.nan
@@ -110,7 +133,7 @@ print("")
 
 # Categorical attributes
 print("Categorical attributes")
-categorical_attributes = ["team", "home/visitor", "opponent", "pointCategory"]
+categorical_attributes = ["team", "home/visitor", "opponent", "pointCategory", "homeResult", "roadResult"]
 for attribute in categorical_attributes:
     print_categorical_attribute_data(df2019, attribute)
 
@@ -137,14 +160,14 @@ df2019 = df2019[(df2019['opponentMoneyLine'] >= lower_bound) & (df2019['opponent
 df2019 = df2019[(df2019['moneyLine'] >= lower_bounda) & (df2019['moneyLine'] <= upper_bounda)]
 # -------------------------------------------
 
-for attribute in continuous_attributes:
-    rowCount = len(df2019[attribute]) - df2019[attribute].isnull().sum()
-    plt.hist(df2019[attribute], bins=int(1 + 3.22 * np.log(rowCount)), edgecolor="black", color="lightgreen")
-    plt.title(attribute + " histograma")
-    plt.xlabel("Reikšmės")
-    plt.ylabel("Dažnumas")
-
-    plt.show()
+# for attribute in continuous_attributes:
+#     rowCount = len(df2019[attribute]) - df2019[attribute].isnull().sum()
+#     plt.hist(df2019[attribute], bins=int(1 + 3.22 * np.log(rowCount)), edgecolor="black", color="lightgreen")
+#     plt.title(attribute + " histograma")
+#     plt.xlabel("Reikšmės")
+#     plt.ylabel("Dažnumas")
+#
+#     plt.show()
 
 # for attribute in categorical_attributes:
 #     rowCount = df2019[attribute].value_counts()
@@ -156,10 +179,10 @@ for attribute in continuous_attributes:
 #
 #     plt.show()
 
-# sns.pairplot(df2019, diag_kind="hist", vars=continuous_attributes)
-#
-# print_relevant_data(df2019)
-# plt.show()
+sns.pairplot(df2019, diag_kind="hist", vars=continuous_attributes)
+
+print_relevant_data(df2019)
+plt.show()
 
 
 # df2019.boxplot(column='opponentMoneyLine')
