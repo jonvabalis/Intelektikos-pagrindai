@@ -1,4 +1,10 @@
 import pandas as pd
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, f1_score
+from sklearn.preprocessing import LabelEncoder
+from sklearn.tree import DecisionTreeClassifier
+import graphviz
+from sklearn.tree import export_graphviz
+import matplotlib.pyplot as plt
 
 csvData = 'oddsData.csv'
 
@@ -43,14 +49,63 @@ df2019 = df2019.drop(rows_to_drop).reset_index(drop=True)
 
 df2019["won"] = df2019[['score', 'opponentScore']].max(axis=1)
 df2019["pointCategory"] = df2019["won"].apply(
-    lambda x: "very low" if x <= 85
-    else ("low" if x < 100
+    lambda x: "very low" if x <= 90
+    else ("low" if x < 105
           else ("average" if x < 130
-                else "more"))
+                else "high"))
 )
 
 # I've decided to use 7 columns only: 'team', 'home/visitor', 'opponent',
-# 'moneyLine', 'opponentMoneyLine', 'spread' and `pointCategory`
+# 'moneyLine', 'opponentMoneyLine', 'spread' and 'pointCategory'
 df2019 = df2019.drop(columns=['date', 'season', 'total', 'secondHalfTotal', 'score', 'opponentScore', 'won'])
 
-print_relevant_data(df2019)
+all_teams = pd.concat([df2019['team'], df2019['opponent']])
+le_team = LabelEncoder()
+le_team.fit(all_teams)
+
+df2019['team'] = le_team.transform(df2019['team'])
+df2019['opponent'] = le_team.transform(df2019['opponent'])
+for i, row in df2019.iterrows():
+    if row["home/visitor"] == "@":
+        df2019.at[i, 'home/visitor'] = -1
+    else:
+        df2019.at[i, 'home/visitor'] = -2
+
+df_train = df2019.sample(frac=0.7, random_state=42)
+df_test = df2019.drop(df_train.index)
+
+df_train_result = df_train["pointCategory"]
+df_train.drop(columns=["pointCategory"], inplace=True)
+
+df_test_result = df_test["pointCategory"]
+df_test.drop(columns=["pointCategory"], inplace=True)
+
+model = DecisionTreeClassifier(random_state=42)
+model.fit(df_train, df_train_result)
+
+dot_data = export_graphviz(
+    model,
+    out_file=None,
+    feature_names=df2019.drop(columns=['pointCategory']).columns,
+    class_names=['very low', 'low', 'average', 'high'],
+    filled=True,
+    rounded=True,
+    special_characters=True
+)
+graph = graphviz.Source(dot_data)
+graph.render("decision_tree")
+
+
+print("---------------------------------------")
+accuracy = model.score(df_test, df_test_result)
+y_pred = model.predict(df_test)
+f1 = f1_score(df_test_result, y_pred, average='macro')
+print(f"Tree accuracy: {accuracy * 100:.2f}%")
+print(f"Tree f1 score: {f1 * 100:.2f}%")
+
+cm = confusion_matrix(df_test_result, y_pred)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=model.classes_)
+disp.plot(cmap="Blues")
+plt.title("Confusion Matrix")
+plt.show()
+
