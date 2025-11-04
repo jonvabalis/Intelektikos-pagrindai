@@ -137,8 +137,8 @@ print(f"Random forest f1 score: {f1 * 100:.2f}%")
 
 
 print("---------------------------------------")
-for depth in [4, 8, 12, 16, 32, 64]:
-    model = RandomForestClassifier(n_estimators=5, max_depth=depth, random_state=42)
+for treeCount in [2, 8, 16, 32, 64, 128]:
+    model = RandomForestClassifier(n_estimators=treeCount, random_state=42)
 
     startTime = time.time()
     model = model.fit(df_train, df_train_result)
@@ -149,5 +149,5 @@ for depth in [4, 8, 12, 16, 32, 64]:
     accuracy = model.score(df_test, df_test_result)
     y_pred = model.predict(df_test)
     f1 = f1_score(df_test_result, y_pred, average='macro')
-    print(f"Depth {depth} | Accuracy: {accuracy * 100:.2f}% | f1: {f1 * 100:.2f}% | Time: {elapsedTime:.4f} seconds")
+    print(f"Tree count {treeCount} | Accuracy: {accuracy * 100:.2f}% | f1: {f1 * 100:.2f}% | Time: {elapsedTime:.4f} seconds")
 print("---------------------------------------")
